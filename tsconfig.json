@@ -1,0 +1,10 @@
+{
+	"extends": ["@tsconfig/svelte/tsconfig.json"],
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "esnext",
+		"isolatedModules": true
+	},
+	"include": ["*.d.ts", "**/*.ts", "**/.svelte"],
+	"references": [{ "path": "./tsconfig.node.json" }]
+}
