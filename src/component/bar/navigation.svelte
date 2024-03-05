@@ -7,6 +7,13 @@
 	import History from '../../store/history';
 	import Pointer from '../../store/pointer';
 
+	const traverseCount = {
+		back: 0,
+		next: 0,
+	};
+
+	let isFindingNew: undefined | boolean = undefined;
+
 	const setLink = async (pointer: number) => {
 		return (await Pointer.get()).add(pointer).then(async () => {
 			return (await History.get()).at(pointer).then((link) => {
@@ -15,11 +22,6 @@
 				});
 			});
 		});
-	};
-
-	const traverseCount = {
-		left: 0,
-		right: 0,
 	};
 
 	const currentPointer = async () => {
@@ -45,11 +47,11 @@
 
 	const updateCanTraverse = async () => {
 		await currentPointerAndCount().then(({ pointer }) => {
-			traverseCount.left = pointer;
+			traverseCount.back = pointer;
 		});
 
 		await currentPointerAndCount().then(({ count, pointer }) => {
-			traverseCount.right = count - 1 - pointer;
+			traverseCount.next = count - 1 - pointer;
 		});
 	};
 
@@ -74,33 +76,37 @@
 			await currentPointer().then(setLink).then(updateCanTraverse);
 		}
 	});
+
+	export { isFindingNew };
 </script>
 
 <div id="container">
 	<div id="buttons">
 		<button
-			disabled={isFalsy(traverseCount.left)}
+			disabled={isFalsy(traverseCount.back)}
 			on:click={() => {
 				currentPointer().then((pointer) => {
-					if (traverseCount.left) {
+					if (traverseCount.back) {
 						setLink(pointer - 1).then(updateCanTraverse);
 					}
 				});
-			}}>Left ({traverseCount.left})</button
+			}}>Back ({traverseCount.back})</button
 		>
 		<button
-			disabled={isFalsy(traverseCount.right)}
+			disabled={isFalsy(traverseCount.next)}
 			on:click={() => {
 				currentPointer().then((pointer) => {
-					if (traverseCount.right) {
+					if (traverseCount.next) {
 						setLink(pointer + 1).then(updateCanTraverse);
 					}
 				});
 			}}
-			>Right ({traverseCount.right})
+			>Next ({traverseCount.next})
 		</button>
 		<button
 			on:click={() => {
+				isFindingNew = true;
+
 				State.get()
 					.updateLink()
 					.then(async (link) => {
@@ -110,11 +116,14 @@
 									return list.length - 1;
 								})
 									.then((await Pointer.get()).add)
-									.then(updateCanTraverse);
+									.then(updateCanTraverse)
+									.then(() => {
+										isFindingNew = false;
+									});
 							}
 						);
 					});
-			}}>Next</button
+			}}>Find New</button
 		>
 	</div>
 </div>

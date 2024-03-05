@@ -1,21 +1,31 @@
 <script lang="ts">
 	import State from '../store/state';
 
-	let link = '';
+	let src = '';
+
+	let isFindingNew: undefined | boolean = undefined;
 
 	State.get()
 		.link()
 		.subscribe((value) => {
-			link = value.unwrapOrGet('');
+			src = value.unwrapOrGet('');
 		});
+
+	export { isFindingNew };
 </script>
 
-{#if link}
-	<iframe title="Wikipedia | Good Articles" src={link}>
-		Your webview doesn't support iframes
-	</iframe>
+{#if src}
+	{#if isFindingNew}
+		<div id="loader">
+			<p>Finding another good articles...</p>
+		</div>
+	{:else}
+		<iframe title="Wikipedia | Good Articles" {src}>
+			Your webview doesn't support iframes
+		</iframe>
+	{/if}
 {:else}
-	<div>
+	<div id="container">
 		<img alt="Wikipedia Logo" src="/icons/wikipedia.png" />
 		<p>Wikipedia | Good Articles</p>
 	</div>
@@ -36,7 +46,24 @@
 		overflow: hidden;
 	}
 
-	div {
+	#loader {
+		position: fixed;
+		top: 55px;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		border: none;
+		margin: 0;
+		padding: 0;
+		overflow: hidden;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	#container {
 		display: flex;
 		justify-content: center;
 		align-items: center;
